@@ -1,0 +1,72 @@
+Sep 12 21:35:40 cu-cs-vm rsyslogd: [origin software="rsyslogd" swVersion="8.16.0" x-pid="3580" x-info="http://www.rsyslog.com"] rsyslogd was HUPed
+Sep 12 21:35:44 cu-cs-vm anacron[3510]: Job `cron.daily' terminated
+Sep 12 21:40:31 cu-cs-vm kernel: [  598.821163] Your first number is: 5
+Sep 12 21:40:31 cu-cs-vm kernel: [  598.821164] Your second number is: 4
+Sep 12 21:40:31 cu-cs-vm kernel: [  598.821165] Your result is: 9
+Sep 12 21:40:39 cu-cs-vm anacron[3510]: Job `cron.weekly' started
+Sep 12 21:40:39 cu-cs-vm anacron[5368]: Updated timestamp for job `cron.weekly' to 2017-09-12
+Sep 12 21:40:39 cu-cs-vm uptimed: moving up to position 26: 0 days, 00:10:07
+Sep 12 21:40:41 cu-cs-vm anacron[3510]: Job `cron.weekly' terminated
+Sep 12 21:40:41 cu-cs-vm anacron[3510]: Normal exit (2 jobs run)
+Sep 12 21:40:41 cu-cs-vm /usr/lib/snapd/snapd[3597]: snapmgr.go:422: No snaps to auto-refresh found
+Sep 12 21:40:41 cu-cs-vm snapd[3597]: 2017/09/12 21:40:41.692664 snapmgr.go:422: No snaps to auto-refresh found
+Sep 12 21:41:06 cu-cs-vm kernel: [  633.649477] Your first number is: 2
+Sep 12 21:41:06 cu-cs-vm kernel: [  633.649478] Your second number is: 3
+Sep 12 21:41:06 cu-cs-vm kernel: [  633.649479] Your result is: 5
+Sep 12 21:44:20 cu-cs-vm dhclient[4151]: DHCPREQUEST of 192.168.240.129 on ens33 to 192.168.240.254 port 67 (xid=0x50e4db63)
+Sep 12 21:44:20 cu-cs-vm dhclient[4151]: DHCPACK of 192.168.240.129 from 192.168.240.254
+Sep 12 21:44:20 cu-cs-vm NetworkManager[3534]: <info>  [1505274260.4809]   address 192.168.240.129
+Sep 12 21:44:20 cu-cs-vm NetworkManager[3534]: <info>  [1505274260.4809]   plen 24 (255.255.255.0)
+Sep 12 21:44:20 cu-cs-vm NetworkManager[3534]: <info>  [1505274260.4810]   gateway 192.168.240.2
+Sep 12 21:44:20 cu-cs-vm NetworkManager[3534]: <info>  [1505274260.4810]   server identifier 192.168.240.254
+Sep 12 21:44:20 cu-cs-vm NetworkManager[3534]: <info>  [1505274260.4810]   lease time 1800
+Sep 12 21:44:20 cu-cs-vm NetworkManager[3534]: <info>  [1505274260.4810]   nameserver '192.168.240.2'
+Sep 12 21:44:20 cu-cs-vm NetworkManager[3534]: <info>  [1505274260.4810]   domain name 'localdomain'
+Sep 12 21:44:20 cu-cs-vm NetworkManager[3534]: <info>  [1505274260.4810]   wins '192.168.240.2'
+Sep 12 21:44:20 cu-cs-vm NetworkManager[3534]: <info>  [1505274260.4810] dhcp4 (ens33): state changed bound -> bound
+Sep 12 21:44:20 cu-cs-vm dbus[3523]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service'
+Sep 12 21:44:20 cu-cs-vm systemd[1]: Starting Network Manager Script Dispatcher Service...
+Sep 12 21:44:20 cu-cs-vm dhclient[4151]: bound to 192.168.240.129 -- renewal in 822 seconds.
+Sep 12 21:44:20 cu-cs-vm dbus[3523]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'
+Sep 12 21:44:20 cu-cs-vm systemd[1]: Started Network Manager Script Dispatcher Service.
+Sep 12 21:44:20 cu-cs-vm nm-dispatcher: req:1 'dhcp4-change' [ens33]: new request (1 scripts)
+Sep 12 21:44:20 cu-cs-vm nm-dispatcher: req:1 'dhcp4-change' [ens33]: start running ordered scripts...
+Sep 12 21:45:40 cu-cs-vm /usr/lib/snapd/snapd[3597]: snapmgr.go:504: DEBUG: Next refresh scheduled for 2017-09-13 04:23:41.920387801 -0600 MDT.
+Sep 12 21:45:40 cu-cs-vm systemd[1]: Starting Cleanup of Temporary Directories...
+Sep 12 21:45:40 cu-cs-vm systemd-tmpfiles[5419]: [/usr/lib/tmpfiles.d/var.conf:14] Duplicate line for path "/var/log", ignoring.
+Sep 12 21:45:40 cu-cs-vm systemd[1]: Started Cleanup of Temporary Directories.
+Sep 12 21:45:47 cu-cs-vm kernel: [  914.804865] Your first number is: 2
+Sep 12 21:45:47 cu-cs-vm kernel: [  914.804866] Your second number is: 3
+Sep 12 21:45:47 cu-cs-vm kernel: [  914.804867] Your result is: 5
+Sep 12 21:45:53 cu-cs-vm kernel: [  920.903267] Your first number is: 2
+Sep 12 21:45:53 cu-cs-vm kernel: [  920.903267] Your second number is: 3
+Sep 12 21:45:53 cu-cs-vm kernel: [  920.903268] Your result is: 5
+Sep 12 21:46:06 cu-cs-vm kernel: [  933.956664] Your first number is: 2
+Sep 12 21:46:06 cu-cs-vm kernel: [  933.956665] Your second number is: 3
+Sep 12 21:46:06 cu-cs-vm kernel: [  933.956666] Your result is: 5
+Sep 12 21:46:38 cu-cs-vm kernel: [  965.491592] Your first number is: 2
+Sep 12 21:46:38 cu-cs-vm kernel: [  965.491592] Your second number is: 3
+Sep 12 21:46:38 cu-cs-vm kernel: [  965.491593] Your result is: 5
+Sep 12 21:50:39 cu-cs-vm uptimed: moving up to position 14: 0 days, 00:20:07
+Sep 12 21:58:02 cu-cs-vm dhclient[4151]: DHCPREQUEST of 192.168.240.129 on ens33 to 192.168.240.254 port 67 (xid=0x50e4db63)
+Sep 12 21:58:02 cu-cs-vm dhclient[4151]: DHCPACK of 192.168.240.129 from 192.168.240.254
+Sep 12 21:58:02 cu-cs-vm NetworkManager[3534]: <info>  [1505275082.1329]   address 192.168.240.129
+Sep 12 21:58:02 cu-cs-vm NetworkManager[3534]: <info>  [1505275082.1330]   plen 24 (255.255.255.0)
+Sep 12 21:58:02 cu-cs-vm NetworkManager[3534]: <info>  [1505275082.1334]   gateway 192.168.240.2
+Sep 12 21:58:02 cu-cs-vm NetworkManager[3534]: <info>  [1505275082.1334]   server identifier 192.168.240.254
+Sep 12 21:58:02 cu-cs-vm NetworkManager[3534]: <info>  [1505275082.1335]   lease time 1800
+Sep 12 21:58:02 cu-cs-vm NetworkManager[3534]: <info>  [1505275082.1335]   nameserver '192.168.240.2'
+Sep 12 21:58:02 cu-cs-vm NetworkManager[3534]: <info>  [1505275082.1335]   domain name 'localdomain'
+Sep 12 21:58:02 cu-cs-vm NetworkManager[3534]: <info>  [1505275082.1335]   wins '192.168.240.2'
+Sep 12 21:58:02 cu-cs-vm NetworkManager[3534]: <info>  [1505275082.1335] dhcp4 (ens33): state changed bound -> bound
+Sep 12 21:58:02 cu-cs-vm dbus[3523]: [system] Activating via systemd: service name='org.freedesktop.nm_dispatcher' unit='dbus-org.freedesktop.nm-dispatcher.service'
+Sep 12 21:58:02 cu-cs-vm dhclient[4151]: bound to 192.168.240.129 -- renewal in 737 seconds.
+Sep 12 21:58:02 cu-cs-vm systemd[1]: Starting Network Manager Script Dispatcher Service...
+Sep 12 21:58:02 cu-cs-vm dbus[3523]: [system] Successfully activated service 'org.freedesktop.nm_dispatcher'
+Sep 12 21:58:02 cu-cs-vm systemd[1]: Started Network Manager Script Dispatcher Service.
+Sep 12 21:58:02 cu-cs-vm nm-dispatcher: req:1 'dhcp4-change' [ens33]: new request (1 scripts)
+Sep 12 21:58:02 cu-cs-vm nm-dispatcher: req:1 'dhcp4-change' [ens33]: start running ordered scripts...
+Sep 12 22:00:35 cu-cs-vm kernel: [ 1803.080810] Your first number is: 2
+Sep 12 22:00:35 cu-cs-vm kernel: [ 1803.080811] Your second number is: 3
+Sep 12 22:00:35 cu-cs-vm kernel: [ 1803.080812] Your result is: 5
+Sep 12 22:00:39 cu-cs-vm uptimed: moving up to position 8: 0 days, 00:30:07
