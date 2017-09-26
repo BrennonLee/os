@@ -1,0 +1,57 @@
+/*
+Written by Shivakant Mishra
+Last update: September 18, 2017
+*/
+
+There are five files in this directory. 
+
+The program in master.c creates two processes that execute the programs in
+executable files `sqr' and `cube'. It then prints whole number 0-99 in a
+file called `whole_num'. Finally, it waits for both of its child processes to
+terminate.
+
+The sqr process prints the square of the numbers 0-99 in a file called
+`squares'. It then creates a child process that runs the program in executable
+file `fourth'. It then waits for the child process to terminate.
+
+The cube process prints the cube of the numbers 0-99 in a file called `cubes'. 
+It then suspends itself for 30 seconds and then exits.
+
+The fourth process prints the cube of the numbers 0-99 in a file called
+`fourths'. It then suspends itself for 60 seconds and then exits.
+
+Compile by typing make
+
+To see the process hierarchy of the processes created, follow the following
+steps:
+
+1. ps --forest
+
+This should display at least two of your processes, shell (e,g, bash) and ps as its child.
+
+2. master&
+
+This starts the master process, which in turn will start sqr and cube, and sqr will start fourth.
+
+3. ps --forest
+
+Run this command with in 30 seconds of starting master.
+You should see at least six processes: shell, ps, master, sqr, cube, and
+fourth. Examine the process hierarchy.
+
+4. ps --forest
+
+Run this command with between 30 and 60 seconds of starting master.
+You should see at least five processes: shell, ps, master, sqr and
+fourth. Examine the process hierarchy. If you see cube, you have run this
+command before 30 seconds, in which case run the command again.
+
+5. ps --forest
+
+Run this command after 60 seconds of starting master.
+You should see at only two processes now: shell and ps (same as in step 1)
+
+6. Now experiment with making changes in the programs to see what happens in
+the program hierarchy, e.g. comment out the wait( ) statement in sqr.c,
+recompile and run. What changes do you see in the process hierarchy?
+
