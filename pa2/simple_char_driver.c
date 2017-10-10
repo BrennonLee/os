@@ -49,9 +49,6 @@ ssize_t simple_char_driver_write (struct file *pfile, const char __user *buffer,
 	/* current position of the opened file*/
 	/* copy_from_user function: destination is device_buffer and source is the userspace buffer *buffer */
 
-	//*offset = strlen(device_buffer);
-	//device_buffer = buffer_start;
-
 	int remainingBuff = BUFFER_SIZE - *offset;
 
 	if (*offset >= BUFFER_SIZE){
@@ -69,10 +66,9 @@ ssize_t simple_char_driver_write (struct file *pfile, const char __user *buffer,
 
 	else {
 		copy_from_user(device_buffer, buffer, length);
-		*offset = strlen(device_buffer);
 		device_buffer = buffer_start;
 		device_buffer += strlen(device_buffer);
-		printk(KERN_ALERT "Bytes written: %d", strlen(device_buffer) - *offset);
+		printk(KERN_ALERT "Bytes written: %d", length);
 		return length;
 	}
 }
