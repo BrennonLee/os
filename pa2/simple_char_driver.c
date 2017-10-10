@@ -1,4 +1,3 @@
-// hi
 
 #include<linux/init.h>
 #include<linux/module.h>
@@ -51,6 +50,7 @@ ssize_t simple_char_driver_write (struct file *pfile, const char __user *buffer,
 	/* copy_from_user function: destination is device_buffer and source is the userspace buffer *buffer */
 
 	*offset = strlen(device_buffer);
+	device_buffer = buffer_start;
 
 	int remainingBuff = BUFFER_SIZE - *offset;
 
@@ -61,6 +61,7 @@ ssize_t simple_char_driver_write (struct file *pfile, const char __user *buffer,
 
 	else if (length > remainingBuff){
 		copy_from_user(device_buffer + *offset, buffer, remainingBuff);
+		device_buffer += strlen(device_buffer);
 		printk(KERN_ALERT "Ran out of space!");
 		return remainingBuff;
 	}
@@ -68,6 +69,7 @@ ssize_t simple_char_driver_write (struct file *pfile, const char __user *buffer,
 	else {
 		copy_from_user(device_buffer + *offset, buffer, length);
 		printk(KERN_ALERT "Bytes written: %d", strlen(device_buffer) - *offset);
+		device_buffer += strlen(device_buffer);
 		return length;
 	}
 }
@@ -96,7 +98,7 @@ loff_t simple_char_driver_seek (struct file *pfile, loff_t offset, int whence)
 	    case 0:
 		/* SEEK_SET */
 		/* Current position is set to offset value */
-		printk(KERN_ALERT "SEEK_SET: old position: %i",  device_buffer);
+		printk(KERN_ALERT "SEEK_SET: old position: %i", device_buffer);
 		device_buffer = buffer_start + offset;
 		printk(KERN_ALERT "new position: %i", device_buffer);
 		return device_buffer;
