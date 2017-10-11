@@ -99,25 +99,43 @@ loff_t simple_char_driver_seek (struct file *pfile, loff_t offset, int whence)
 	    case 0:
 		/* SEEK_SET */
 		/* Current position is set to offset value */
-		printk(KERN_ALERT "SEEK_SET: old position: %i", device_buffer);
-		device_buffer = buffer_start + offset;
-		printk(KERN_ALERT "new position: %i", device_buffer);
-		return device_buffer;
+		if (offset < 0 || offset > BUFFER_SIZE) {
+			printk(KERN_ALERT "Offset value not allowed!");
+			return -1;
+		}
+		else{
+			printk(KERN_ALERT "SEEK_SET: old position: %i", device_buffer);
+			device_buffer = buffer_start + offset;
+			printk(KERN_ALERT "new position: %i", device_buffer);
+			return device_buffer;
+		}
 	    case 1:
 		/* SEEK_CUR */
 		/* Current position is incremented by the offset bytes */
-		printk(KERN_ALERT "SEEK_CUR old position: %i", device_buffer);
-		device_buffer += offset;
-		printk(KERN_ALERT "new position: %i", device_buffer);
-		return device_buffer;
+		if((device_buffer + offset) > strlen(device_buffer) || (device_buffer + offset) < buffer_start){
+			printk(KERN_ALERT "Offset value not allowed!");
+			return -1;
+		}
+		else {
+			printk(KERN_ALERT "SEEK_CUR old position: %i", device_buffer);
+			device_buffer += offset;
+			printk(KERN_ALERT "new position: %i", device_buffer);
+			return device_buffer;
+		}
 	    case 2:
 		/* SEEK_END */
 		/* Current position is set to offset bytes before end of the file  */
-		printk(KERN_ALERT "SEEK_END old position: %i", device_buffer);
-		void *tmp = buffer_start + strlen(device_buffer);
-		device_buffer = (tmp - offset);
-		printk(KERN_ALERT "new position: %i", device_buffer);
-		return device_buffer;
+		if (offset > BUFFER_SIZE) {
+			printk(KERN_ALERT "Offset value not allowed.");
+			return -1;
+		}
+		else {
+			printk(KERN_ALERT "SEEK_END old position: %i", device_buffer);
+			void *tmp = buffer_start + strlen(device_buffer);
+			device_buffer = (tmp - offset);
+			printk(KERN_ALERT "new position: %i", device_buffer);
+			return device_buffer;
+		}
 	    default:
 		return device_buffer;
 	}
