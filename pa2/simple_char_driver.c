@@ -58,16 +58,18 @@ ssize_t simple_char_driver_write (struct file *pfile, const char __user *buffer,
 
 	else if (length > remainingBuff){
 		copy_from_user(device_buffer, buffer, remainingBuff);
+		*offset = strlen(buffer_start);
 		device_buffer = buffer_start;
-		device_buffer += strlen(device_buffer);
+		device_buffer += *offset;
 		printk(KERN_ALERT "Ran out of space!");
 		return remainingBuff;
 	}
 
 	else {
 		copy_from_user(device_buffer, buffer, length);
+		*offset = strlen(buffer_start);
 		device_buffer = buffer_start;
-		device_buffer += strlen(device_buffer);
+		device_buffer += *offset;
 		printk(KERN_ALERT "Bytes written: %d", length);
 		return length;
 	}
