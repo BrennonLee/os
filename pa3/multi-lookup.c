@@ -70,6 +70,11 @@ void* request(struct requestStruct* rStruct) {
 	return NULL;
 }
 
+void* resolver(struct resolverStruct* resStruct){
+
+	return NULL;
+}
+
 
 
 
@@ -85,9 +90,11 @@ int main (int argc, char *argv[]) {
 
 	int sharedCounter = 0;
 	char *inputFiles[argc - 5]; //array for input files
-	int threadNum = atoi(argv[1]); //convert read in string to int
+	char *servicedFile = argv[4]; // servicedfile to write to <-------FINISH THIS LATER
+ 	int reqThreadNum = atoi(argv[1]); //get Requestor thread #
+	int resThreadNum = atoi(argv[2]); //get Resolver thread #
 	int ifiles = argc - 5; // remaining input files
-	pthread_t rthread[threadNum]; // requestor threads entered
+	pthread_t rthread[reqThreadNum]; // requestor threads entered
 
 	char *sharedArray[15];
 
@@ -96,29 +103,37 @@ int main (int argc, char *argv[]) {
 		inputFiles[i] = argv[5+i];
 	}
 
-	struct requestStruct Requestor;
+	struct requestStruct Requestor; //initialize Requestor Struct
 	struct requestStruct* RequestPtr;
+	struct resolverStruct Resolver;	//initialize Resolver Struct
+	struct resolverStruct* ResolverPtr; 
 
 	Requestor.inputFiles = inputFiles; //Requestor struct set to inputFiles array
-	Requestor.sharedArray = sharedArray; // Requestor struct set to sharedArray
+	Requestor.sharedArray = sharedArray; //Requestor struct set to sharedArray
 	Requestor.sharedArrayCounter = &sharedCounter; //Requestor struct set to sharedCounter
 	Requestor.totalIF = argc - 5;	//Total number of input files
 	Requestor.totalServiced = 0;	//total inputFiles serviced initialized
-	RequestPtr = &Requestor;	//Requestor struct pointer set to point to our Requestor struct
+	RequestPtr = &Requestor;	//Requestor struct pointer set to point to our Requestor
+
+	Resolver.sharedArray = sharedArray; //Resolver struct set to sharedArray	
+	Resolver.sharedArrayCounter = &sharedCounter; //Resolver struct set to sharedCounter
+	ResolverPtr = &Resolver;	//Resolver struct pointer set to point to our Resolver 
 
 	pthread_mutex_init(&Requestor.servicedFileLock, NULL);
 	pthread_mutex_init(&Requestor.servicedCountLock, NULL);
 	pthread_mutex_init(&Requestor.inputFileLock, NULL);
 	pthread_mutex_init(&Requestor.sharedArrayLock, NULL);
 
-	for (int i=0; i < threadNum; i++){
+	for (int i=0; i < reqThreadNum; i++){
 		if(pthread_create(&rthread[i], NULL, request, RequestPtr)){
 			fprintf(stderr,"Error creating thread\n");
 			return 1;
 		}
 	}
+	
+	//for loop for all resThreadNum
 
-	for(int i = 0; i < threadNum; i++){
+	for(int i = 0; i < reqThreadNum; i++){
 		if (pthread_join(rthread[i],NULL)){
 			fprintf(stderr, "Error joining thread\n");
 			return 2;

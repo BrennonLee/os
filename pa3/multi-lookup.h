@@ -17,6 +17,9 @@ struct requestStruct {
 	int totalServiced;
 	int totalIF;
 	int* sharedArrayCounter;
-	//int sharedService;
-	
+};
+
+struct resolverStruct {
+	char** sharedArray;
+	int* sharedArrayCounter;
 };
