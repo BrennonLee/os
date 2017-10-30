@@ -9,10 +9,12 @@ struct requestStruct {
 	pthread_mutex_t servicedCountLock;
 	pthread_mutex_t inputFileLock;
 	pthread_mutex_t sharedArrayLock;
+	//pthread_cond_t cond_serviced;
 	char** inputFiles;
 	FILE* servicedFile;
 	FILE* currentIF;
 	int totalServiced;
 	int totalIF;
+	//int sharedService;
 	
 };

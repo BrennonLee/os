@@ -1,5 +1,7 @@
-
 #include "multi-lookup.h"
+	/*
+		Written by Brennon Lee
+	*/
 
 	//to compile program run gcc -o multi-lookup multi-lookup.c multi-lookup.h -lpthread
 
@@ -9,63 +11,52 @@
 	//arg 5 - serviced.txt
 	//Then up to 10 input files.
 
-//pthread_mutex_t servicedLock;
-
-
 void* request(struct requestStruct* rStruct) {
 	pid_t threadID = syscall(__NR_gettid);
 	char domainName[100];
-	
-	//lock and open inputfile
-	pthread_mutex_lock(&rStruct->servicedCountLock);
-	rStruct->currentIF = fopen(rStruct->inputFiles[rStruct->totalServiced], "r+");
-	if (rStruct == NULL){
-		fprintf(stderr, "Can't open input file!\n");
-	}
-	rStruct->totalServiced += 1;
-	pthread_mutex_unlock(&rStruct->servicedCountLock);
-	
-	printf("totalIF serived: %d and totalIF: %d\n", rStruct->totalServiced, rStruct->totalIF);
-	while (rStruct->totalServiced <= rStruct->totalIF){
-	printf("thread %u is inside the loop!\n", threadID);
-		//while there is stuff to read in input file read it.
-		 while(fscanf(rStruct->currentIF, "%s", domainName) == 1){
-			pthread_mutex_lock(&rStruct->sharedArrayLock);
-			printf("domainName: %s\n", domainName);
-			pthread_mutex_unlock(&rStruct->sharedArrayLock);
-		}	
-
-		//lock and write to servicedfile
-		pthread_mutex_lock(&rStruct->servicedFileLock);
-
-		rStruct->servicedFile = fopen("serviced.txt","a");
-		if (rStruct->servicedFile == NULL) {
-	  		fprintf(stderr, "Can't open serviced file!\n");
-	  		exit(1);
+	int localServiced = 0;
+	FILE* currentFile;
+	while(rStruct->totalServiced < rStruct->totalIF){
+		pthread_mutex_lock(&rStruct->inputFileLock);
+		if ((rStruct->totalServiced + 1) > rStruct->totalIF){
+			break;
 		}
-
-		//fprintf(rStruct->servicedFile, "Thread %u serviced file(s): %s.\n", threadID, *(rStruct->inputFiles + 0));
-		fprintf(rStruct->servicedFile, "Thread %u serviced file(s): %s.\n", threadID, *(rStruct->inputFiles + (rStruct->totalServiced - 1)));
-	
-		fclose(rStruct->servicedFile);
-		pthread_mutex_unlock(&rStruct->servicedFileLock);
-	
-		//then update total serviced count
-		pthread_mutex_lock(&rStruct->servicedCountLock);
-		fclose(rStruct->currentIF);
+		currentFile = fopen(rStruct->inputFiles[rStruct->totalServiced], "r+");
+		if(rStruct == NULL){
+			fprintf(stderr, "Can't open input file!\n");	
+		}
+		printf("thread %u is inside the loop with file: %s\n", threadID, rStruct->inputFiles[rStruct->totalServiced]);
 		rStruct->totalServiced += 1;		
-		if (rStruct->totalServiced <= rStruct->totalIF){
-			rStruct->currentIF = fopen(rStruct->inputFiles[rStruct->totalServiced], "r");
-			if (rStruct == NULL){
-				fprintf(stderr, "Can't open input file!\n");
-			}
+		pthread_mutex_unlock(&rStruct->inputFileLock);
+
+		while(fscanf(currentFile, "%s", domainName) == 1){
+			printf("domainName: %s\n", domainName);
 		}
-		pthread_mutex_unlock(&rStruct->servicedCountLock);
+		fclose(currentFile);
+
+		pthread_mutex_lock(&rStruct->inputFileLock);
+		localServiced++;	
+		pthread_mutex_unlock(&rStruct->inputFileLock);
 	}
-	printf("Thread %u just outside loop\n", threadID);
+	pthread_mutex_lock(&rStruct->servicedFileLock);	
+	rStruct->servicedFile = fopen("serviced.txt","a");
+	if (rStruct->servicedFile == NULL) {
+  		fprintf(stderr, "Can't open serviced file!\n");
+  		exit(1);
+	}
+	fprintf(rStruct->servicedFile, "Thread %u serviced %d file(s)\n", threadID, localServiced);
 	
-	return NULL;
+	fclose(rStruct->servicedFile);
+	pthread_mutex_unlock(&rStruct->servicedFileLock);
+
+	printf("Thread %u just outside loop\n", threadID);
+	return NULL;	
 }
+
+
+
+
+
 
 int main (int argc, char *argv[]) {	
 
@@ -91,9 +82,8 @@ int main (int argc, char *argv[]) {
 
 	Requestor.inputFiles = inputFiles; //Requestor struct set to inputFiles array
 	Requestor.totalIF = argc - 5;	//Total number of input files
-	RequestPtr = &Requestor;	//Requestor struct pointer set to point to our Requestor struct
-
 	Requestor.totalServiced = 0;	//total inputFiles serviced initialized
+	RequestPtr = &Requestor;	//Requestor struct pointer set to point to our Requestor struct
 
 	pthread_mutex_init(&Requestor.servicedFileLock, NULL);
 	pthread_mutex_init(&Requestor.servicedCountLock, NULL);
@@ -114,18 +104,6 @@ int main (int argc, char *argv[]) {
 		}
 	}
 
-
-	//if (ifp == NULL) {
-  		//fprintf(stderr, "Can't open input file!\n");
-  		//exit(1);
-	//}
-
-	//char domainName[100];
-
-	//while (fscanf(ifp, "%s", domainName) == 1) {
-  	//	fprintf(servicedFile, "%s\n", domainName);
-	//}
-	//fclose(ifp);
 
 	return 0;
 }
