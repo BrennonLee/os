@@ -7,7 +7,7 @@
 
 	//arg 2 - # of requester threads --> argv[1]
 	//arg 3 - # of resolver threads --> argv[2]
-	//arg 4 - results.txt	
+	//arg 4 - results.txt
 	//arg 5 - serviced.txt
 	//Then up to 10 input files.
 
@@ -23,34 +23,51 @@ void* request(struct requestStruct* rStruct) {
 		}
 		currentFile = fopen(rStruct->inputFiles[rStruct->totalServiced], "r+");
 		if(rStruct == NULL){
-			fprintf(stderr, "Can't open input file!\n");	
+			fprintf(stderr, "Can't open input file!\n");
 		}
 		printf("thread %u is inside the loop with file: %s\n", threadID, rStruct->inputFiles[rStruct->totalServiced]);
-		rStruct->totalServiced += 1;		
+		rStruct->totalServiced += 1;
 		pthread_mutex_unlock(&rStruct->inputFileLock);
 
-		while(fscanf(currentFile, "%s", domainName) == 1){
-			printf("domainName: %s\n", domainName);
+		while(!feof(currentFile)){
+			pthread_mutex_lock(&rStruct->sharedArrayLock);
+			//printf("domainName: %s\n", domainName);
+			printf("sharedArrayCounter(IFSTATEMENT): %d\n", *rStruct->sharedArrayCounter);
+			if (*rStruct->sharedArrayCounter < 15){
+				fscanf(currentFile, "%s", domainName);
+				rStruct->sharedArray[*rStruct->sharedArrayCounter] = (char*)malloc(100);
+				strcpy(rStruct->sharedArray[*rStruct->sharedArrayCounter], domainName);
+				printf("domainName: %s\n", domainName);
+				*rStruct->sharedArrayCounter+= 1;
+				pthread_mutex_unlock(&rStruct->sharedArrayLock);
+			}
+			else{
+				pthread_mutex_unlock(&rStruct->sharedArrayLock);
+				printf("Sleeping\n");
+				usleep(100);
+				break;
+			}
+
 		}
 		fclose(currentFile);
 
 		pthread_mutex_lock(&rStruct->inputFileLock);
-		localServiced++;	
+		localServiced++;
 		pthread_mutex_unlock(&rStruct->inputFileLock);
 	}
-	pthread_mutex_lock(&rStruct->servicedFileLock);	
+	pthread_mutex_lock(&rStruct->servicedFileLock);
 	rStruct->servicedFile = fopen("serviced.txt","a");
 	if (rStruct->servicedFile == NULL) {
   		fprintf(stderr, "Can't open serviced file!\n");
   		exit(1);
 	}
 	fprintf(rStruct->servicedFile, "Thread %u serviced %d file(s)\n", threadID, localServiced);
-	
+
 	fclose(rStruct->servicedFile);
 	pthread_mutex_unlock(&rStruct->servicedFileLock);
 
 	printf("Thread %u just outside loop\n", threadID);
-	return NULL;	
+	return NULL;
 }
 
 
@@ -58,19 +75,21 @@ void* request(struct requestStruct* rStruct) {
 
 
 
-int main (int argc, char *argv[]) {	
+int main (int argc, char *argv[]) {
 
 	if (argc > 15 || argc < 6) {
 		printf("Invalid arguement entry. Format is: \n");
 		printf("./multi-lookup <requester threads> <resolver threads> <results.txt> <serviced.txt> <..inputfiles..>\n");
-		return 0;	
+		return 0;
 	}
 
-	
+	int sharedCounter = 0;
 	char *inputFiles[argc - 5]; //array for input files
 	int threadNum = atoi(argv[1]); //convert read in string to int
 	int ifiles = argc - 5; // remaining input files
 	pthread_t rthread[threadNum]; // requestor threads entered
+
+	char *sharedArray[15];
 
 	//loop through inputfiles and add them to inputFiles array
 	for(int i=0; i < (argc - 5); i++){
@@ -81,6 +100,8 @@ int main (int argc, char *argv[]) {
 	struct requestStruct* RequestPtr;
 
 	Requestor.inputFiles = inputFiles; //Requestor struct set to inputFiles array
+	Requestor.sharedArray = sharedArray; // Requestor struct set to sharedArray
+	Requestor.sharedArrayCounter = &sharedCounter; //Requestor struct set to sharedCounter
 	Requestor.totalIF = argc - 5;	//Total number of input files
 	Requestor.totalServiced = 0;	//total inputFiles serviced initialized
 	RequestPtr = &Requestor;	//Requestor struct pointer set to point to our Requestor struct
@@ -102,6 +123,10 @@ int main (int argc, char *argv[]) {
 			fprintf(stderr, "Error joining thread\n");
 			return 2;
 		}
+	}
+
+	for (int i=0; i < 15; i++){
+		printf("%d: %s\n", i,*(Requestor.sharedArray + i));
 	}
 
 
