@@ -50,6 +50,7 @@ void* request(struct requestStruct* rStruct) {
 		}
 		pthread_mutex_lock(&rStruct->sharedArrayLock);
 		pthread_cond_signal(&reader);
+		pthread_cond_signal(&writer);
 		pthread_mutex_unlock(&rStruct->sharedArrayLock);
 	
 		fclose(currentFile);
@@ -78,18 +79,21 @@ void* resolver(struct resolverStruct* resStruct){
 
 	while(*resStruct->sharedArrayCounter > 0 || (*resStruct->ALIVE)){
 		pthread_mutex_lock(&resStruct->sharedArrayLock);
-		if (*resStruct->sharedArrayCounter < 1 && (*resStruct->ALIVE)){
+		if (*resStruct->sharedArrayCounter < 1){
+			if (!(*resStruct->ALIVE)){
+				break;				
+			}
 			printf("Reader sleeping\n");
 			pthread_cond_signal(&writer);
 			pthread_cond_wait(&reader, &resStruct->sharedArrayLock);
 			printf("READER HAS AWOKEN\n");
 		}
 		strcpy(domainName,resStruct->sharedArray[*(resStruct->sharedArrayCounter) - 1]);
-		printf("Reading SharedCounter: %d\n", *(resStruct->sharedArrayCounter) - 1);
+		printf("Reading SharedCounter: %d\n", *(resStruct->sharedArrayCounter));
 		printf("Resolver reading: %s domain.\n", domainName);
 		*resStruct->sharedArrayCounter-=1;
 		pthread_mutex_unlock(&resStruct->sharedArrayLock);
-		//pthread_cond_signal(&reader);
+		pthread_cond_signal(&reader);
 		
 		pthread_mutex_lock(&resStruct->resultsFileLock);
 		FILE *resultsOF = fopen("results.txt", "a");
@@ -98,7 +102,7 @@ void* resolver(struct resolverStruct* resStruct){
 		}
 
 		if(dnslookup(domainName,firstIPstr, sizeof(firstIPstr)) == UTIL_FAILURE){
-			fprintf(stderr, "dnslookup failed :( : %s\n", domainName);
+			fprintf(stderr, "dnslookup failed :( %s\n", domainName);
 			 strncpy(firstIPstr, "", sizeof(firstIPstr));
 		}
 
