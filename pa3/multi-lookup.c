@@ -16,6 +16,7 @@ void* request(struct requestStruct* rStruct) {
 	char domainName[1025];
 	int localServiced = 0;
 	FILE* currentFile;
+	FILE* servicedFile;
 	while(rStruct->totalServiced < rStruct->totalIF){
 		pthread_mutex_lock(&rStruct->inputFileLock);
 		if ((rStruct->totalServiced + 1) > rStruct->totalIF){
@@ -57,14 +58,14 @@ void* request(struct requestStruct* rStruct) {
 		localServiced++;
 	}
 	pthread_mutex_lock(&rStruct->servicedFileLock);
-	rStruct->servicedFile = fopen("serviced.txt","a");
-	if (rStruct->servicedFile == NULL) {
+	servicedFile = fopen(rStruct->servicedFile,"a");
+	if (servicedFile == NULL) {
   		fprintf(stderr, "Can't open serviced file!\n");
   		exit(1);
 	}
-	fprintf(rStruct->servicedFile, "Thread %u serviced %d file(s)\n", threadID, localServiced);
+	fprintf(servicedFile, "Thread %u serviced %d file(s)\n", threadID, localServiced);
 
-	fclose(rStruct->servicedFile);
+	fclose(servicedFile);
 	*rStruct->ALIVE = 0;
 	pthread_mutex_unlock(&rStruct->servicedFileLock);
 
@@ -74,6 +75,7 @@ void* request(struct requestStruct* rStruct) {
 
 void* resolver(struct resolverStruct* resStruct){
 	pid_t threadID = syscall(__NR_gettid);
+	FILE * resultsOF;
 	char firstIPstr[INET6_ADDRSTRLEN];
 	char domainName[1025];
 
@@ -96,7 +98,7 @@ void* resolver(struct resolverStruct* resStruct){
 		pthread_cond_signal(&reader);
 		
 		pthread_mutex_lock(&resStruct->resultsFileLock);
-		FILE *resultsOF = fopen("results.txt", "a");
+		resultsOF = fopen(resStruct->resultFile, "a");
 		if (resultsOF == NULL){
 			fprintf(stderr, "Can't open results file!\n");
 		}
@@ -110,7 +112,7 @@ void* resolver(struct resolverStruct* resStruct){
 		fclose(resultsOF);
 		pthread_mutex_unlock(&resStruct->resultsFileLock);		
 	}
-	pthread_exit(0);;
+	pthread_exit(0);
 }
 
 
@@ -125,8 +127,9 @@ int main (int argc, char *argv[]) {
 
 	int sharedCounter = 0;
 	int ALIVE = 1;
-	char *inputFiles[argc - 5]; //array for input files
-	char *servicedFile = argv[4]; // servicedfile to write to <-------FINISH THIS LATER
+	char* inputFiles[argc - 5]; //array for input files
+	char* servicedFile = argv[4]; // servicedfile to write to
+	char* resultFile = argv[3]; // resultsFile to write to
  	int reqThreadNum = atoi(argv[1]); //get Requestor thread #
 	int resThreadNum = atoi(argv[2]); //get Resolver thread #
 	int ifiles = argc - 5; // remaining input files
@@ -146,6 +149,7 @@ int main (int argc, char *argv[]) {
 	struct resolverStruct* ResolverPtr; 
 
 	Requestor.inputFiles = inputFiles; //Requestor struct set to inputFiles array
+	Requestor.servicedFile = servicedFile;
 	Requestor.sharedArray = sharedArray; //Requestor struct set to sharedArray
 	Requestor.sharedArrayCounter = &sharedCounter; //Requestor struct set to sharedCounter
 	Requestor.ALIVE = &ALIVE;
@@ -155,6 +159,7 @@ int main (int argc, char *argv[]) {
 
 	Resolver.sharedArray = sharedArray; //Resolver struct set to sharedArray	
 	Resolver.sharedArrayCounter = &sharedCounter; //Resolver struct set to sharedCounter
+	Resolver.resultFile = resultFile;
 	Resolver.ALIVE = &ALIVE;
 	ResolverPtr = &Resolver;	//Resolver struct pointer set to point to our Resolver 
 
@@ -184,7 +189,6 @@ int main (int argc, char *argv[]) {
 		}
 	}
 
-	
 	//join all threads back together
 	for(int i = 0; i < reqThreadNum; i++){
 		if (pthread_join(rthread[i],NULL)){
@@ -200,7 +204,6 @@ int main (int argc, char *argv[]) {
 		}
 	}
 	
-
 	for (int i=0; i < 15; i++){
 		printf("%d: %s\n", i,*(Requestor.sharedArray + i));
 	}

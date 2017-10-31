@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>	
 #include <sys/types.h>
-#include <sys/syscall.h>	
+#include <sys/syscall.h>
+#include <unistd.h> 	
 #include <pthread.h>
 #include "util.c"
 
@@ -19,8 +20,7 @@ struct requestStruct {
 	
 	char** inputFiles;
 	char** sharedArray;
-	FILE* servicedFile;
-	FILE* currentIF;
+	char* servicedFile;
 	int totalServiced;
 	int totalIF;
 	int* sharedArrayCounter;
@@ -31,6 +31,7 @@ struct resolverStruct {
 	pthread_mutex_t sharedArrayLock;
 	pthread_mutex_t resultsFileLock;
 	char** sharedArray;
+	char* resultFile;
 	int* sharedArrayCounter;
 	int* ALIVE;
 };
