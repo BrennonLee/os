@@ -74,7 +74,6 @@ void* request(struct requestStruct* rStruct) {
 }
 
 void* resolver(struct resolverStruct* resStruct){
-	pid_t threadID = syscall(__NR_gettid);
 	FILE* resultsOF;
 	char firstIPstr[INET6_ADDRSTRLEN];
 	char domainName[1025];
@@ -138,7 +137,6 @@ int main (int argc, char *argv[]) {
 	char* resultFile = argv[3]; // resultsFile to write to
  	int reqThreadNum = atoi(argv[1]); //get Requestor thread #
 	int resThreadNum = atoi(argv[2]); //get Resolver thread #
-	int ifiles = argc - 5; // remaining input files
 	pthread_t rthread[reqThreadNum]; // requestor threads entered
 	pthread_t resThread[resThreadNum]; //resolver threads
 
