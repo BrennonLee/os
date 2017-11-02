@@ -7,5 +7,5 @@
 ```
 make clean
 make
-./multi-lookup <requester threads> <resolver threads> <results.txt> <serviced.txt> <.. (up to 10) inputfiles..>
+./multi-lookup <requester threads> <resolver threads> result.txt serviced.txt <.. (up to 10) inputfiles..>
 ```

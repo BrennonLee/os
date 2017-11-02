@@ -13,4 +13,4 @@ clean:
 	rm -f multi-lookup
 	rm -f *.o
 	rm -f *~
-	rm -f results.txt serviced.txt
+	rm -f result.txt serviced.txt 
