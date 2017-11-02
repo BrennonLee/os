@@ -228,6 +228,6 @@ int main (int argc, char *argv[]) {
 	pthread_cond_destroy(&reader);
 
 	gettimeofday(&end, NULL);
-  	printf("Runtime: %ld\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
+  	printf("Runtime in seconds: %ld\n", (end.tv_sec - start.tv_sec));
 	return 0;
 }

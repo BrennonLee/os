@@ -1,0 +1,59 @@
+Performance.txt 
+Brennon Lee
+
+*NOTE: Each scenario is ran with 5 input files
+
+Number of requestor thread = 1
+Number of resolver thread = 1
+Total run time: 6 seconds
+Thread 6052 serviced 5 file(s)
+
+
+Number of requestor thread = 1
+Number of resolver thread = 3
+Total run time: 4 seconds
+Thread 6085 serviced 5 file(s)
+
+
+Number of requestor thread = 3
+Number of resolver thread = 1
+Total run time: 6 seconds
+Thread 6111 serviced 1 file(s)
+Thread 6112 serviced 2 file(s)
+Thread 6110 serviced 2 file(s)
+
+
+Number of requestor thread = 3
+Number of resolver thread = 3
+Total run time: 4 seconds
+Thread 6172 serviced 1 file(s)
+Thread 6171 serviced 2 file(s)
+Thread 6173 serviced 2 file(s)
+
+
+Number of requestor thread = 5
+Number of resolver thread = 5
+Total run time: 9 seconds
+Thread 6198 serviced 1 file(s)
+Thread 6197 serviced 1 file(s)
+Thread 6200 serviced 1 file(s)
+Thread 6201 serviced 1 file(s)
+Thread 6199 serviced 1 file(s)
+
+
+Number of requestor thread = 8
+Number of resolver thread = 5
+Total run time: 15 seconds
+Thread 6227 serviced 1 file(s)
+Thread 6230 serviced 1 file(s)
+Thread 6228 serviced 1 file(s)
+Thread 6229 serviced 1 file(s)
+Thread 6231 serviced 1 file(s)
+
+
+The differences vary among all of these six scenarios and even amongst themselves. 
+If one of these scenarios were to be ran multiple times, the output time would vary quite a bit.
+The reason for this is because when the program is being executed, the context switch between each thread is 
+different and can happen during any time outside of a process being inside one of the mutex locks. 
+When more threads are added (requestors and resolvers), the different combinations of context switches between threads 
+increases which will add a bit of overhead time and therefore make the total running time longer.
