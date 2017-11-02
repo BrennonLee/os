@@ -1,4 +1,5 @@
 #include "multi-lookup.h"
+
 	/*
 		Written by Brennon Lee
 	*/
@@ -21,6 +22,7 @@ void* request(struct requestStruct* rStruct) {
 		pthread_mutex_lock(&rStruct->inputFileLock);
 		if ((rStruct->totalServiced + 1) > rStruct->totalIF){
 			printf("Req thread is breaking\n");
+			pthread_mutex_unlock(&rStruct->inputFileLock);
 			break;
 		}
 		currentFile = fopen(rStruct->inputFiles[rStruct->totalServiced], "r+");
@@ -84,10 +86,10 @@ void* resolver(struct resolverStruct* resStruct){
 		if (*resStruct->sharedArrayCounter < 1){
 			if (!(*resStruct->ALIVE)){
 				printf("Res. thread breaking");
+				pthread_mutex_unlock(&resStruct->sharedArrayLock);
 				break;
 			}
 			printf("Reader sleeping\n");
-			//pthread_cond_signal(&writer);
 			pthread_cond_wait(&reader, &resStruct->sharedArrayLock);
 			printf("READER HAS AWOKEN\n");
 		}
@@ -102,6 +104,7 @@ void* resolver(struct resolverStruct* resStruct){
 		resultsOF = fopen(resStruct->resultFile, "a");
 		if (resultsOF == NULL){
 			fprintf(stderr, "Can't open results file!\n");
+			exit(1);
 		}
 
 		if(dnslookup(domainName,firstIPstr, sizeof(firstIPstr)) == UTIL_FAILURE){
@@ -141,6 +144,14 @@ int main (int argc, char *argv[]) {
 
 	char *sharedArray[ARRAYSIZE];
 
+	//Checking limits
+	if (reqThreadNum > 5){
+		reqThreadNum = 5;	
+	}
+	if (resThreadNum > 10){
+		resThreadNum = 10;
+	}
+
 	//loop through inputfiles and add them to inputFiles array
 	for(int i=0; i < (argc - 5); i++){
 		inputFiles[i] = argv[5+i];
@@ -176,8 +187,11 @@ int main (int argc, char *argv[]) {
 	pthread_mutex_init(&Resolver.sharedArrayLock, NULL);
 	pthread_mutex_init(&Resolver.resultsFileLock, NULL);
 
+	struct timeval start, end;
+  	gettimeofday(&start, NULL);
+
 	for (int i=0; i < reqThreadNum; i++){
-		if(pthread_create(&rthread[i], NULL, request, RequestPtr)){
+		if(pthread_create(&rthread[i], NULL,  (void *)request, RequestPtr)){
 			fprintf(stderr,"Error creating thread\n");
 			return 1;
 		}
@@ -185,7 +199,7 @@ int main (int argc, char *argv[]) {
 
 	//for loop for all resThreadNum
 	for (int j=0; j < resThreadNum; j++){
-		if(pthread_create(&resThread[j], NULL, resolver, ResolverPtr)){
+		if(pthread_create(&resThread[j], NULL,  (void *)resolver, ResolverPtr)){
 			fprintf(stderr, "Error creating thread\n");
 			return 1;
 		}
@@ -214,5 +228,8 @@ int main (int argc, char *argv[]) {
 
 	pthread_cond_destroy(&writer);
 	pthread_cond_destroy(&reader);
+
+	gettimeofday(&end, NULL);
+  	printf("Runtime: %ld\n", ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec)));
 	return 0;
 }

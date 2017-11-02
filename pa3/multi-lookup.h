@@ -7,6 +7,9 @@
 #include <sys/syscall.h>
 #include <unistd.h> 	
 #include <pthread.h>
+#include <time.h>
+#include <sys/time.h>
+
 #include "util.c"
 
 #define ARRAYSIZE 15
