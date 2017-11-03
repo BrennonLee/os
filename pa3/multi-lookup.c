@@ -126,7 +126,7 @@ int main (int argc, char *argv[]) {
 
 	if (argc > 15 || argc < 6) {
 		printf("Invalid arguement entry. Format is: \n");
-		printf("./multi-lookup <requester threads> <resolver threads> <results.txt> <serviced.txt> <..inputfiles..>\n");
+		printf("./multi-lookup <requester threads> <resolver threads> <result.txt> <serviced.txt> <..inputfiles..>\n");
 		return 0;
 	}
 
