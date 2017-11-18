@@ -28,6 +28,7 @@ void* request(struct requestStruct* rStruct) {
 		currentFile = fopen(rStruct->inputFiles[rStruct->totalServiced], "r+");
 		if(currentFile == NULL){
 			fprintf(stderr, "Can't open input file!\n");
+			exit(1);
 		}
 		printf("thread %u is inside the loop with file: %s\n", threadID, rStruct->inputFiles[rStruct->totalServiced]);
 		rStruct->totalServiced += 1;
