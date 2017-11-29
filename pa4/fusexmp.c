@@ -35,6 +35,7 @@
 #endif
 
 #include <fuse.h>
+#include "aes-crypt.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -50,6 +51,7 @@
 
 typedef struct {
 	char *rootdir;
+	char *passphrase;
 } userInput;
 
 static void xmp_fullpath(char fpath[PATH_MAX], const char *path) {
@@ -397,6 +399,7 @@ static int xmp_statfs(const char *path, struct statvfs *stbuf)
 static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi) {
 
     (void) fi;
+	FILE *ef;
 
     int res;
 
@@ -408,6 +411,12 @@ static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi) 
     if(res == -1)
 	return -errno;
 
+	ef = fdopen(res,"w");
+
+	userInput *data = (userInput *)(fuse_get_context()->private_data);
+	do_crypt(ef, ef, 1, data->passphrase);
+	
+	fclose(ef);
     close(res);
 
     return 0;
@@ -534,7 +543,9 @@ int main(int argc, char *argv[])
 	data = malloc(sizeof(userInput));
 
 	data->rootdir = realpath(argv[2], NULL);
+	data->passphrase = argv[1];
 	printf("Path is %s\n", data->rootdir);
+	printf("Passphrase is %s\n", data->passphrase);
 
 	return fuse_main(argc - 2, argv + 2, &xmp_oper, data);
 }
