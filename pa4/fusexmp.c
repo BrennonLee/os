@@ -19,11 +19,14 @@
         not implmented (fgetattr(), etc). Those seeking a more efficient and
         more complete implementation may wish to add fi->fh support to minimize
         open() and close() calls and support fh dependent functions.
-
+ 
 */
 
 #define FUSE_USE_VERSION 28
 #define HAVE_SETXATTR
+#define XATTRFLAG "user.encrypted"
+#define DECRYPT 0
+#define ENCRYPT 1
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -337,6 +340,8 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 {
 	int fd;
 	int res;
+	ssize_t byteSize, tmpSize;
+	FILE *fp, *tmp;
 
 	//update path
 	char fpath[PATH_MAX];
@@ -344,15 +349,48 @@ static int xmp_read(const char *path, char *buf, size_t size, off_t offset,
 
 
 	(void) fi;
-	fd = open(fpath, O_RDONLY);
-	if (fd == -1)
-		return -errno;
 
-	res = pread(fd, buf, size, offset);
-	if (res == -1)
-		res = -errno;
 
-	close(fd);
+	byteSize = getxattr(fpath, XATTRFLAG, NULL, 0); //check encrypted flag
+	
+	//file encrypted
+	if(byteSize >= 0) {
+		
+		tmp = tmpfile();
+			
+		fp = fopen(fpath, "rb+"); //non-text files
+	
+		fseek(fp, 0, SEEK_SET); //start from beginning
+		
+		userInput *data = (userInput *)(fuse_get_context()->private_data);
+		do_crypt(fp, tmp, DECRYPT, data->passphrase);
+
+		fseek(tmp, 0, SEEK_END); //seek to end of tmp to get lenght of decrypted file in bytes
+		
+		tmpSize = ftell(tmp);
+		fseek(tmp, 0, SEEK_SET);
+		
+		res = fread(buf, 1, tmpSize, tmp);
+		if (res == -1){
+			res = -errno;
+		}	
+	
+		fclose(fp);
+		fclose(tmp);
+	}
+	//file not encrypted
+	else {
+		fd = open(fpath, O_RDONLY);
+		if (fd == -1)
+			return -errno;
+
+		res = pread(fd, buf, size, offset);
+		if (res == -1)
+			res = -errno;
+
+		close(fd);
+	}
+
 	return res;
 }
 
@@ -361,6 +399,9 @@ static int xmp_write(const char *path, const char *buf, size_t size,
 {
 	int fd;
 	int res;
+	FILE *fp, *tmp;
+
+	ssize_t byteSize;
 
 	//update path
 	char fpath[PATH_MAX];
@@ -368,15 +409,53 @@ static int xmp_write(const char *path, const char *buf, size_t size,
 
 
 	(void) fi;
+
+	byteSize = getxattr(fpath, XATTRFLAG, NULL, 0);	//check encrypted flag
+
+	//file is encrypted
+	if (byteSize >=0){
+
+		tmp = tmpfile(); //create tmp since issue with reading & writing same file
+
+	
+		fp = fopen(fpath, "rb+"); //non-text files
+		
+        fseek(fp, 0, SEEK_SET); //start from beginning and decrypt file
+ 
+		userInput *data = (userInput *)(fuse_get_context()->private_data);
+		do_crypt(fp, tmp, DECRYPT, data->passphrase);
+
+		fseek(fp, 0, SEEK_SET);	//now apppend what we want to write
+
+		res = fwrite(buf, 1, size, tmp);
+		if (res == -1)
+            return -errno;
+
+		fseek(tmp, 0, SEEK_SET); //now encrypt everything!
+
+		do_crypt(tmp, fp, ENCRYPT, data->passphrase);
+
+		fclose(tmp);
+		fclose(fp);
+
+	}
+	//file is not encrypted
+	else{
+
 	fd = open(fpath, O_WRONLY);
 	if (fd == -1)
 		return -errno;
+
 
 	res = pwrite(fd, buf, size, offset);
 	if (res == -1)
 		res = -errno;
 
 	close(fd);
+
+	}
+
+	
 	return res;
 }
 
@@ -413,11 +492,15 @@ static int xmp_create(const char* path, mode_t mode, struct fuse_file_info* fi) 
 
 	ef = fdopen(res,"w");
 
+    close(res);
+
 	userInput *data = (userInput *)(fuse_get_context()->private_data);
-	do_crypt(ef, ef, 1, data->passphrase);
+	do_crypt(ef, ef, ENCRYPT, data->passphrase);
 	
 	fclose(ef);
-    close(res);
+
+	if(setxattr(fpath, XATTRFLAG, "true", 4, 0) == -1)
+		return -errno;
 
     return 0;
 }
