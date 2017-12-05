@@ -22,6 +22,9 @@
  
 */
 
+
+/* Additions made by Brennon Lee for Programming Assigment 4 for CSCI 3753 */
+
 #define FUSE_USE_VERSION 28
 #define HAVE_SETXATTR
 #define XATTRFLAG "user.encrypted"
